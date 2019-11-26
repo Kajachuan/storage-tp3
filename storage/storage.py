@@ -21,7 +21,7 @@ class Storage:
         self.channel = self.connection.channel()
 
         # WD - Storage
-        self.channel.exchange_declare(exchange='wd-storage', exchange_type='fanout')
+        self.channel.exchange_declare(exchange='wd-storage', exchange_type='fanout', durable=True)
         result = self.channel.queue_declare(queue='wd-storage', durable=True)
         self.wd_queue = result.method.queue
         self.channel.queue_bind(exchange='wd-storage', queue=self.wd_queue)

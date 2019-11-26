@@ -9,11 +9,11 @@ class StorageLeader:
         self.channel = self.connection.channel()
 
         # Leader -> Replica
-        self.channel.exchange_declare(exchange='leader-replica', exchange_type='fanout')
+        self.channel.exchange_declare(exchange='leader', exchange_type='fanout', durable=True)
 
         # Data -> Leader
-        self.channel.exchange_declare(exchange='data', exchange_type='fanout')
-        result = self.channel.queue_declare(queue='', exclusive=True, durable=True)
+        self.channel.exchange_declare(exchange='data', exchange_type='fanout', durable=True)
+        result = self.channel.queue_declare(queue='data_queue', durable=True)
         self.data_queue = result.method.queue
         self.channel.queue_bind(exchange='data', queue=self.data_queue)
 
@@ -25,5 +25,5 @@ class StorageLeader:
     def persist(self, ch, method, properties, body):
         logging.info('Received %r' % body)
         print(body)
-        self.channel.basic_publish(exchange='leader-replica', routing_key='', body=body,
+        self.channel.basic_publish(exchange='leader', routing_key='', body=body,
                                    properties=pika.BasicProperties(delivery_mode=2,))
